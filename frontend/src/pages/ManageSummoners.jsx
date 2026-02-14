@@ -2,18 +2,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus } from "lucide-react";
+import { RefreshCcw, UserPlus } from "lucide-react";
 
 const API_BASE = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const ManageSummoners = () => {
-  const [riotId, setRiotId] = useState("");
   const [summoners, setSummoners] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const fetchSummoners = async () => {
     try {
@@ -28,21 +25,11 @@ const ManageSummoners = () => {
     fetchSummoners();
   }, []);
 
-  const handleAddSummoner = async () => {
-    if (!riotId.trim()) {
-      setError("Ingresa un Riot ID válido.");
-      return;
-    }
+  const handleRefresh = async () => {
     setLoading(true);
     setError("");
-    setSuccess("");
     try {
-      await axios.post(`${API_BASE}/summoners`, { riot_id: riotId.trim() });
-      setSuccess("Invocador agregado y baseline registrada.");
-      setRiotId("");
-      fetchSummoners();
-    } catch (err) {
-      setError("No se pudo agregar. Verifica el Riot ID e intenta de nuevo.");
+      await fetchSummoners();
     } finally {
       setLoading(false);
     }
@@ -71,45 +58,28 @@ const ManageSummoners = () => {
       </section>
 
       <section
-        className="bg-obsidian-700/70 border border-gold-500/20 p-6 md:p-8 space-y-5"
+        className="bg-obsidian-700/70 border border-gold-500/20 p-6 md:p-8 space-y-4"
         data-testid="manage-form-section"
       >
-        <div className="flex flex-col md:flex-row gap-4" data-testid="manage-form">
-          <Input
-            value={riotId}
-            onChange={(event) => setRiotId(event.target.value)}
-            placeholder="Lorian#BIS"
-            className="bg-obsidian-900 border border-gold-500/40 text-gold-100"
-            data-testid="riot-id-input"
-          />
-          <Button
-            onClick={handleAddSummoner}
-            disabled={loading}
-            className="clip-path-hextech bg-obsidian-600 border border-gold-400 text-gold-100 hover:bg-gold-400 hover:text-obsidian-900"
-            data-testid="add-summoner-button"
-          >
-            {loading ? "Agregando..." : "Agregar invocador"}
-          </Button>
-          <Button
-            type="button"
-            onClick={() => setRiotId("Lorian#BIS")}
-            className="bg-transparent border border-hextech-400 text-hextech-400 hover:bg-hextech-400/10"
-            data-testid="add-example-button"
-          >
-            Usar ejemplo
-          </Button>
+        <div
+          className="text-sm text-gold-300/80"
+          data-testid="manage-closed-message"
+        >
+          El registro de invocadores está cerrado. Solo se muestran los
+          participantes actuales.
         </div>
+        <Button
+          onClick={handleRefresh}
+          disabled={loading}
+          className="clip-path-hextech bg-obsidian-600 border border-gold-400 text-gold-100 hover:bg-gold-400 hover:text-obsidian-900"
+          data-testid="refresh-summoners-button"
+        >
+          <RefreshCcw className="mr-2 h-4 w-4" />
+          {loading ? "Actualizando..." : "Actualizar lista"}
+        </Button>
         {error && (
-          <p className="text-sm text-red-300" data-testid="add-summoner-error">
+          <p className="text-sm text-red-300" data-testid="summoners-load-error">
             {error}
-          </p>
-        )}
-        {success && (
-          <p
-            className="text-sm text-hextech-400"
-            data-testid="add-summoner-success"
-          >
-            {success}
           </p>
         )}
       </section>

@@ -99,9 +99,9 @@ const Leaderboard = () => {
             <Button
               asChild
               className="bg-transparent border border-hextech-400 text-hextech-400 hover:bg-hextech-400/10"
-              data-testid="manage-summoners-button"
+              data-testid="view-summoners-button"
             >
-              <Link to="/gestion">Agregar invocador</Link>
+              <Link to="/gestion">Ver invocadores</Link>
             </Button>
           </div>
         </div>
@@ -202,7 +202,7 @@ const Leaderboard = () => {
             className="text-sm text-gold-300"
             data-testid="leaderboard-empty"
           >
-            Aún no hay invocadores agregados. Empieza en "Agregar invocador".
+            Aún no hay invocadores agregados.
           </div>
         )}
 
