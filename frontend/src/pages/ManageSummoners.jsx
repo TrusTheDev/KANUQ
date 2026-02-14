@@ -51,9 +51,8 @@ const ManageSummoners = () => {
           className="text-base text-gold-300/80 max-w-2xl"
           data-testid="manage-subtitle"
         >
-          Agrega nuevos jugadores usando su Riot ID (GameName#TAG). El sistema
-          guardará el baseline de LP y empezará el seguimiento desde ese
-          momento.
+          El listado de participantes ya está cerrado. Aquí puedes consultar a
+          los invocadores inscritos y sus LP ganados.
         </p>
       </section>
 
