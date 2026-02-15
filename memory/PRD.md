@@ -7,10 +7,13 @@ Necesito que hagas una página pública para rankear usuarios según el LP que g
 - **Frontend:** React + Tailwind + shadcn/ui, rutas para Ranking, Invocadores y Detalle.
 - **Backend:** FastAPI con integración Riot API (Account-V1 + Summoner-V4 + League-V4 by PUUID).
 - **DB:** MongoDB (colección `summoners`) para baseline y estado actual.
-- **Cálculo:** LP ganados = LP actual - baseline LP (baseline al momento de agregar).
+- **Cálculo:** LP ganados por puntos de liga (tier/división/LP) vs baseline inicial.
 
 ## Implemented Features
-- Alta de invocadores con Riot ID (GameName#TAG) desde UI.
+- Registro de invocadores cerrado (solo lectura de participantes).
+- Ranking público por LP ganados con lógica anti-descenso de rango.
+- Invocador Azthiels#exest agregado al circuito.
+- Indicador de burla (emoji) para quienes están por debajo de Azthiels#exest.
 - Ranking público por LP ganados con refresco desde Riot API.
 - Detalle de invocador (LP actual, LP ganados, baseline, W/L, rango actual).
 - Gestión de invocadores con lista y navegación.
