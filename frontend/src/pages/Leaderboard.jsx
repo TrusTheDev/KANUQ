@@ -60,6 +60,12 @@ const Leaderboard = () => {
     );
   }, [summoners]);
 
+  const azthiels = useMemo(() => {
+    return summoners.find(
+      (summoner) => summoner.riot_id?.toLowerCase() === "azthiels#exest",
+    );
+  }, [summoners]);
+
   return (
     <div className="space-y-10" data-testid="leaderboard-page">
       <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
@@ -254,6 +260,10 @@ const Leaderboard = () => {
                   const rankClass =
                     rankStyleMap[summoner.current_tier] ||
                     "border-gold-300 text-gold-300";
+                  const shouldMock =
+                    azthiels &&
+                    summoner.id !== azthiels.id &&
+                    summoner.lp_gained < azthiels.lp_gained;
                   return (
                     <TableRow
                       key={summoner.id}
@@ -303,7 +313,17 @@ const Leaderboard = () => {
                         }`}
                         data-testid={`leaderboard-lp-gained-${summoner.id}`}
                       >
-                        {formatLp(summoner.lp_gained)} LP
+                        <span>{formatLp(summoner.lp_gained)} LP</span>
+                        {shouldMock && (
+                          <span
+                            className="ml-2"
+                            role="img"
+                            aria-label="burlandose"
+                            data-testid={`leaderboard-mock-${summoner.id}`}
+                          >
+                            😂
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell
                         className="text-gold-100"
