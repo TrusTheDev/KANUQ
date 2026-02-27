@@ -62,6 +62,10 @@ class SummonerResponse(BaseModel):
     updated_at: datetime
     summoner_level: Optional[int] = None
     profile_icon_id: Optional[int] = None
+    rank_change: Optional[str] = None
+    rank_changed_at: Optional[datetime] = None
+    previous_tier: Optional[str] = None
+    previous_rank: Optional[str] = None
 
 
 class RiotApiClient:
@@ -133,6 +137,20 @@ def compute_rank_points(tier: Optional[str], rank: Optional[str], lp: int) -> in
     return base_points + division_points + lp
 
 
+def compute_rank_floor_points(tier: Optional[str], rank: Optional[str]) -> int:
+    if not tier or tier == "UNRANKED":
+        return 0
+    tier_key = tier.upper()
+    tier_index = TIER_ORDER.get(tier_key)
+    if tier_index is None:
+        return 0
+    base_points = tier_index * 400
+    if tier_key in {"MASTER", "GRANDMASTER", "CHALLENGER"}:
+        return base_points
+    division_points = DIVISION_ORDER.get((rank or "").upper(), 0) * 100
+    return base_points + division_points
+
+
 def extract_ranked_data(league_entries: List[dict]) -> dict:
     for entry in league_entries:
         if entry.get("queueType") == "RANKED_SOLO_5x5":
@@ -191,16 +209,42 @@ def build_response(doc: dict) -> SummonerResponse:
         updated_at=updated_at,
         summoner_level=doc.get("summoner_level"),
         profile_icon_id=doc.get("profile_icon_id"),
+        rank_change=doc.get("rank_change"),
+        rank_changed_at=doc.get("rank_changed_at"),
+        previous_tier=doc.get("previous_tier"),
+        previous_rank=doc.get("previous_rank"),
     )
 
 
 async def refresh_summoner_stats(doc: dict, riot_client: RiotApiClient) -> dict:
+    previous_tier = doc.get("current_tier")
+    previous_rank = doc.get("current_rank")
+    previous_floor = compute_rank_floor_points(previous_tier, previous_rank)
     league_entries = await riot_client.get_league_entries(doc["puuid"])
     ranked_data = extract_ranked_data(league_entries)
+    current_floor = compute_rank_floor_points(
+        ranked_data.get("current_tier"),
+        ranked_data.get("current_rank"),
+    )
+    rank_change = None
+    rank_changed_at = None
+    if previous_tier is not None and previous_rank is not None:
+        if current_floor != previous_floor:
+            rank_change = "up" if current_floor > previous_floor else "down"
+            rank_changed_at = datetime.now(timezone.utc)
     update_payload = {
         **ranked_data,
         "updated_at": datetime.now(timezone.utc),
     }
+    if rank_change:
+        update_payload.update(
+            {
+                "rank_change": rank_change,
+                "rank_changed_at": rank_changed_at,
+                "previous_tier": previous_tier,
+                "previous_rank": previous_rank,
+            }
+        )
     if doc.get("baseline_points") is None:
         update_payload["baseline_points"] = compute_rank_points(
             ranked_data.get("current_tier"),
