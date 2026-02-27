@@ -35,6 +35,9 @@ const SummonerDetail = () => {
   const baselineDate = summoner?.baseline_set_at
     ? new Date(summoner.baseline_set_at).toLocaleString("es-CL")
     : "--";
+  const rankChangeDate = summoner?.rank_changed_at
+    ? new Date(summoner.rank_changed_at).toLocaleString("es-CL")
+    : "--";
 
   return (
     <div className="space-y-10" data-testid="summoner-detail-page">
@@ -137,7 +140,7 @@ const SummonerDetail = () => {
           </section>
 
           <section
-            className="grid gap-4 md:grid-cols-2"
+            className="grid gap-4 md:grid-cols-3"
             data-testid="summoner-detail-stats"
           >
             <div
@@ -185,6 +188,52 @@ const SummonerDetail = () => {
               >
                 {summoner.losses} Derrotas
               </p>
+            </div>
+            <div
+              className="bg-obsidian-700/70 border border-gold-500/20 p-6"
+              data-testid="summoner-detail-rank-change-card"
+            >
+              <p
+                className="text-xs uppercase tracking-widest text-gold-300"
+                data-testid="summoner-detail-rank-change-label"
+              >
+                Cambio de rango
+              </p>
+              {summoner.rank_change ? (
+                <div className="space-y-1">
+                  <p
+                    className={`font-ui text-lg ${
+                      summoner.rank_change === "up"
+                        ? "text-hextech-400"
+                        : "text-red-300"
+                    }`}
+                    data-testid="summoner-detail-rank-change-direction"
+                  >
+                    {summoner.rank_change === "up" ? "▲ Subió" : "▼ Bajó"}
+                  </p>
+                  <p
+                    className="text-sm text-gold-300"
+                    data-testid="summoner-detail-rank-change-from"
+                  >
+                    {summoner.previous_tier} {summoner.previous_rank} →
+                    {" "}
+                    {summoner.current_tier} {summoner.current_rank}
+                  </p>
+                  <p
+                    className="text-xs text-gold-300"
+                    data-testid="summoner-detail-rank-change-date"
+                  >
+                    {rankChangeDate}
+                  </p>
+                </div>
+              ) : (
+                <p
+                  className="text-sm text-gold-300"
+                  data-testid="summoner-detail-rank-change-none"
+                >
+                  Sin cambios recientes
+                </p>
+              )}
             </div>
           </section>
         </div>
