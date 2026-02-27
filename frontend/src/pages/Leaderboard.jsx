@@ -289,15 +289,38 @@ const Leaderboard = () => {
                         className="text-gold-100"
                         data-testid={`leaderboard-rank-${summoner.id}`}
                       >
-                        <Badge
-                          className={`bg-transparent border ${rankClass} font-ui`}
-                          data-testid={`leaderboard-rank-badge-${summoner.id}`}
-                        >
-                          {summoner.current_tier}
-                          {summoner.current_rank
-                            ? ` ${summoner.current_rank}`
-                            : ""}
-                        </Badge>
+                        <div className="flex flex-col gap-1">
+                          <Badge
+                            className={`bg-transparent border ${rankClass} font-ui`}
+                            data-testid={`leaderboard-rank-badge-${summoner.id}`}
+                          >
+                            {summoner.current_tier}
+                            {summoner.current_rank
+                              ? ` ${summoner.current_rank}`
+                              : ""}
+                          </Badge>
+                          {summoner.rank_change ? (
+                            <span
+                              className={`text-xs font-ui ${
+                                summoner.rank_change === "up"
+                                  ? "text-hextech-400"
+                                  : "text-red-300"
+                              }`}
+                              data-testid={`leaderboard-rank-change-${summoner.id}`}
+                            >
+                              {summoner.rank_change === "up"
+                                ? "▲ Subió"
+                                : "▼ Bajó"}
+                            </span>
+                          ) : (
+                            <span
+                              className="text-xs text-gold-300"
+                              data-testid={`leaderboard-rank-change-${summoner.id}`}
+                            >
+                              Sin cambios
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell
                         className="font-ui text-gold-100"
