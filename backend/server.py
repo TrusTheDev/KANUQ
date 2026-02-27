@@ -84,6 +84,11 @@ class RiotApiClient:
             return None
         if response.status_code == 429:
             raise HTTPException(status_code=429, detail="Rate limit de Riot alcanzado")
+        if response.status_code == 401:
+            raise HTTPException(
+                status_code=401,
+                detail="Riot API key inválida o expirada",
+            )
         response.raise_for_status()
         return response.json()
 
