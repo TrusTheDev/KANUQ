@@ -43,7 +43,11 @@ const Leaderboard = () => {
       const response = await axios.get(
         `${API_BASE}/summoners?refresh=${refresh}`,
       );
-      setSummoners(response.data || []);
+      const data = Array.isArray(response.data)
+  ? response.data
+  : response.data?.summoners || response.data?.data || [];
+
+setSummoners(data);
     } catch (err) {
       setError("No pudimos actualizar el ranking. Intenta de nuevo.");
     } finally {
