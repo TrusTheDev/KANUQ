@@ -28,9 +28,12 @@ const SummonerDetail = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDetail(true);
-  }, [id]);
+useEffect(() => {
+  const fetchDetail = async () => {
+  };
+
+  fetchDetail();
+}, [id]);
 
   const baselineDate = summoner?.baseline_set_at
     ? new Date(summoner.baseline_set_at).toLocaleString("es-CL")
