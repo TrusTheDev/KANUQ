@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Query
 from dotenv import load_dotenv
+load_dotenv()
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
@@ -266,7 +267,8 @@ async def health_check():
 
 @api_router.post("/summoners", response_model=SummonerResponse)
 async def add_summoner(payload: SummonerCreate):
-    raise HTTPException(status_code=403, detail="Registro de invocadores cerrado")
+    # Comment this to enable add summoner
+    # raise HTTPException(status_code=403, detail="Registro de invocadores cerrado")
     game_name, tag_line = parse_riot_id(payload.riot_id)
     riot_client = RiotApiClient()
     account_data = await riot_client.get_account_by_riot_id(game_name, tag_line)
