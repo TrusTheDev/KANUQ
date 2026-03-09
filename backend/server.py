@@ -85,6 +85,16 @@ class RiotApiClient:
             return None
         if response.status_code == 429:
             raise HTTPException(status_code=429, detail="Rate limit de Riot alcanzado")
+        if response.status_code == 401:
+            raise HTTPException(
+                status_code=401,
+                detail="Riot API key inválida o expirada",
+            )
+        if response.status_code == 400:
+            raise HTTPException(
+                status_code=400,
+                detail="Solicitud inválida a Riot API",
+            )
         response.raise_for_status()
         return response.json()
 
@@ -221,7 +231,20 @@ async def refresh_summoner_stats(doc: dict, riot_client: RiotApiClient) -> dict:
     previous_tier = doc.get("current_tier")
     previous_rank = doc.get("current_rank")
     previous_floor = compute_rank_floor_points(previous_tier, previous_rank)
-    league_entries = await riot_client.get_league_entries(doc["puuid"])
+    puuid = doc.get("puuid")
+    try:
+        league_entries = await riot_client.get_league_entries(puuid)
+    except HTTPException as exc:
+        if exc.status_code != 400:
+            raise
+        account_data = await riot_client.get_account_by_riot_id(
+            doc.get("game_name", ""),
+            doc.get("tag_line", ""),
+        )
+        if not account_data:
+            raise
+        puuid = account_data.get("puuid")
+        league_entries = await riot_client.get_league_entries(puuid)
     ranked_data = extract_ranked_data(league_entries)
     current_floor = compute_rank_floor_points(
         ranked_data.get("current_tier"),
@@ -237,6 +260,19 @@ async def refresh_summoner_stats(doc: dict, riot_client: RiotApiClient) -> dict:
         **ranked_data,
         "updated_at": datetime.now(timezone.utc),
     }
+    if puuid and puuid != doc.get("puuid"):
+        update_payload["puuid"] = puuid
+    try:
+        summoner_data = await riot_client.get_summoner_by_puuid(puuid)
+        if summoner_data:
+            update_payload.update(
+                {
+                    "summoner_level": summoner_data.get("summonerLevel"),
+                    "profile_icon_id": summoner_data.get("profileIconId"),
+                }
+            )
+    except HTTPException:
+        pass
     if rank_change:
         update_payload.update(
             {
